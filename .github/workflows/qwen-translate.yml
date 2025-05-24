@@ -1,0 +1,56 @@
+name: Qwen Translate Notebooks (Only Changed Files)
+
+on:
+  push:
+    paths:
+      - '**/*.ipynb'
+    branches:
+      - main
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Get changed .ipynb files
+        id: get_files
+        run: |
+          # 获取本次提交中发生变化的 .ipynb 文件
+          CHANGED_FILES=$(git diff --name-only HEAD~1 | grep -E '\.ipynb$')
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
+
+      - name: Translate changed notebooks
+        env:
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+        run: |
+          if [ -z "$changed_files" ]; then
+            echo "No .ipynb files changed."
+            exit 0
+          fi
+
+          # 构造命令参数
+          ARGS=("$(pwd)" "translated_notebooks")
+          for file in $changed_files; do
+            ARGS+=("$file")
+          done
+
+          python translate_ipynb.py "${ARGS[@]}"
+
+      - name: Commit and Push Translated Files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add translated_notebooks/
+          git commit -m "Translated updated notebooks using Qwen"
+          git push origin HEAD:main
