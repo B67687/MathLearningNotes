@@ -12,6 +12,8 @@ Repository for mathematics learning notes, covering topics like trigonometry, pr
   - [Calculus](#calculus)
   - [Discrete Mathematics](#discrete-mathematics)
     - [Combinatorics](#combinatorics)
+    - [Logic](#logic)
+    - [Series and Sequences](#series-and-sequences)
   - [Fractals](#fractals)
   - [Trigonometry](#trigonometry)
   - [Translated Notebooks](#translated-notebooks)
@@ -74,6 +76,34 @@ The calculus section contains a series of advancement reports documenting progre
 | [binomial-expansion.ipynb](discrete-mathematics/combinatorics/binomial-expansion.ipynb) | Binomial expansion formulas and applications |
 | [pascals-triangle.ipynb](discrete-mathematics/combinatorics/pascals-triangle.ipynb) | Pascal's triangle properties and applications |
 | [permutation-and-combination.ipynb](discrete-mathematics/combinatorics/permutation-and-combination.ipynb) | Permutation and combination concepts |
+
+#### Logic
+
+| Notebook | Description |
+|----------|-------------|
+| [if-p-then-q-explained.ipynb](discrete-mathematics/logic/if-p-then-q-explained.ipynb) | Explanation of conditional statements in logic |
+| [learnings-1st-april.ipynb](discrete-mathematics/logic/learnings-1st-april.ipynb) | Logic concepts learned on April 1st, 2025 |
+
+#### Series and Sequences
+
+| Notebook | Description |
+|----------|-------------|
+| [arithmetic-sum-generalisation.ipynb](discrete-mathematics/series-and-sequences/arithmetic-sum-generalisation.ipynb) | Generalizations of arithmetic sum formulas |
+| [arithmetic-sum.ipynb](discrete-mathematics/series-and-sequences/arithmetic-sum.ipynb) | Basic arithmetic sum concepts and formulas |
+| [cubes-as-sum-of-consecutive-odd-numbers.ipynb](discrete-mathematics/series-and-sequences/cubes-as-sum-of-consecutive-odd-numbers.ipynb) | Representing cubes as sums of consecutive odd numbers |
+| [geometric-sum.ipynb](discrete-mathematics/series-and-sequences/geometric-sum.ipynb) | Geometric series concepts and formulas |
+| [sharing-and-splitting.ipynb](discrete-mathematics/series-and-sequences/sharing-and-splitting.ipynb) | Problems involving sharing and splitting sequences |
+| [sum-of-consecutive-multiples.ipynb](discrete-mathematics/series-and-sequences/sum-of-consecutive-multiples.ipynb) | Sums of consecutive multiples |
+| [sum-of-cubes-with-arithmetic-sum-old.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-arithmetic-sum-old.ipynb) | Old approach to sum of cubes using arithmetic sums |
+| [sum-of-cubes-with-arithmetic-sum.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-arithmetic-sum.ipynb) | Sum of cubes using arithmetic sum formulas |
+| [sum-of-cubes-with-sum-of-squares.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-sum-of-squares.ipynb) | Relationship between sum of cubes and sum of squares |
+| [sum-of-cubes-with-symmetric-sums.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-symmetric-sums.ipynb) | Sum of cubes using symmetric sum approach |
+| [sum-of-even-numbers.ipynb](discrete-mathematics/series-and-sequences/sum-of-even-numbers.ipynb) | Formulas for sum of even numbers |
+| [sum-of-odd-numbers-is-square.ipynb](discrete-mathematics/series-and-sequences/sum-of-odd-numbers-is-square.ipynb) | Proof that sum of odd numbers equals perfect squares |
+| [sum-of-positive-integers-to-odd-or-even-integer.ipynb](discrete-mathematics/series-and-sequences/sum-of-positive-integers-to-odd-or-even-integer.ipynb) | Sum formulas for positive integers up to odd or even numbers |
+| [sum-of-reciprocal-consecutive-multiples.ipynb](discrete-mathematics/series-and-sequences/sum-of-reciprocal-consecutive-multiples.ipynb) | Sums of reciprocals of consecutive multiples |
+| [symmetric-sum-of-even-numbers.ipynb](discrete-mathematics/series-and-sequences/symmetric-sum-of-even-numbers.ipynb) | Symmetric approach to summing even numbers |
+| [symmetric-sum-of-odd-numbers.ipynb](discrete-mathematics/series-and-sequences/symmetric-sum-of-odd-numbers.ipynb) | Symmetric approach to summing odd numbers |
 
 ### Fractals
 
