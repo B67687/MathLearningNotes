@@ -16,14 +16,17 @@ Repository for mathematics learning notes, covering topics like trigonometry, pr
     - [Series and Sequences](#series-and-sequences)
   - [Fractals](#fractals)
   - [Trigonometry](#trigonometry)
-  - [Translated Notebooks](#translated-notebooks)
+  - [Translated Notebooks (中文翻译笔记本)](#translated-notebooks-中文翻译笔记本)
+    - [Discrete Mathematics (离散数学)](#discrete-mathematics-离散数学)
+      - [Combinatorics (组合学)](#combinatorics-组合学)
+      - [Series and Sequences (数列与级数)](#series-and-sequences-数列与级数)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Overview
 
-This repository contains a collection of Jupyter notebooks documenting various mathematical concepts, proofs, and explorations. The notebooks are organized by mathematical discipline and include both theoretical explanations and practical examples.
+This repository contains a collection of Jupyter notebooks documenting various mathematical concepts, proofs, and explorations. The notebooks are organized by mathematical discipline and include both theoretical explanations and practical examples. Additionally, this repository includes Chinese translations of many notebooks to make the content accessible to Chinese-speaking learners.
 
 ## Installation
 
@@ -121,9 +124,42 @@ The calculus section contains a series of advancement reports documenting progre
 | [the-way-is-to-simplify-case-study.ipynb](trigonometry/the-way-is-to-simplify-case-study.ipynb) | Case study on simplification techniques |
 | [advancements-report-*.ipynb](trigonometry/) | Progress reports from March 2025 |
 
-### Translated Notebooks
+### Translated Notebooks (中文翻译笔记本)
 
-The `translated-notebooks` directory contains translated versions of various notebooks, primarily in Chinese. These translations are generated using the `translate_notebooks.py` script.
+The `translated-notebooks` directory contains Chinese translations of various notebooks, making the mathematical content accessible to Chinese-speaking learners. These translations are generated and maintained using the `translate_notebooks.py` script.
+
+#### Discrete Mathematics (离散数学)
+
+##### Combinatorics (组合学)
+
+| Notebook | Description |
+|----------|-------------|
+| [二项展开式.ipynb](translated-notebooks/离散数学/组合学/二项展开式.ipynb) | 二项展开式公式与应用 (Binomial expansion formulas and applications) |
+| [排列与组合.ipynb](translated-notebooks/离散数学/组合学/排列与组合.ipynb) | 排列与组合概念 (Permutation and combination concepts) |
+| [杨辉三角.ipynb](translated-notebooks/离散数学/组合学/杨辉三角.ipynb) | 杨辉三角的性质与应用 (Pascal's triangle properties and applications) |
+
+##### Series and Sequences (数列与级数)
+
+| Notebook | Description |
+|----------|-------------|
+| [三角形数与之求和.ipynb](translated-notebooks/离散数学/数列与级数/三角形数与之求和.ipynb) | 三角形数及其求和公式 (Triangular numbers and their sum formulas) |
+| [偶数之和.ipynb](translated-notebooks/离散数学/数列与级数/偶数之和.ipynb) | 偶数求和公式 (Sum of even numbers formulas) |
+| [偶数总和与对称之和.ipynb](translated-notebooks/离散数学/数列与级数/偶数总和与对称之和.ipynb) | 偶数总和的对称方法 (Symmetric approach to summing even numbers) |
+| [共享与分割.ipynb](translated-notebooks/离散数学/数列与级数/共享与分割.ipynb) | 涉及共享与分割的数列问题 (Problems involving sharing and splitting sequences) |
+| [叠缩求和.ipynb](translated-notebooks/离散数学/数列与级数/叠缩求和.ipynb) | 叠缩求和方法 (Telescoping sum methods) |
+| [奇数总和的对称之和.ipynb](translated-notebooks/离散数学/数列与级数/奇数总和的对称之和.ipynb) | 奇数总和的对称方法 (Symmetric approach to summing odd numbers) |
+| [奇数的和是平方数.ipynb](translated-notebooks/离散数学/数列与级数/奇数的和是平方数.ipynb) | 奇数和等于完全平方数的证明 (Proof that sum of odd numbers equals perfect squares) |
+| [平方和的等差数列之推导.ipynb](translated-notebooks/离散数学/数列与级数/平方和的等差数列之推导.ipynb) | 平方和与等差数列的关系推导 (Derivation of relationship between sum of squares and arithmetic sequences) |
+| [立方和的对称和之推导.ipynb](translated-notebooks/离散数学/数列与级数/立方和的对称和之推导.ipynb) | 立方和的对称方法推导 (Derivation of symmetric approach to sum of cubes) |
+| [立方和的平方和之推导.ipynb](translated-notebooks/离散数学/数列与级数/立方和的平方和之推导.ipynb) | 立方和与平方和关系的推导 (Derivation of relationship between sum of cubes and sum of squares) |
+| [立方和的等差数列之推导.ipynb](translated-notebooks/离散数学/数列与级数/立方和的等差数列之推导.ipynb) | 立方和与等差数列的关系推导 (Derivation of sum of cubes using arithmetic sequences) |
+| [立方和的等差数列之推导（压缩版）.ipynb](translated-notebooks/离散数学/数列与级数/立方和的等差数列之推导（压缩版）.ipynb) | 立方和等差数列推导的简化版本 (Compressed version of sum of cubes derivation) |
+| [立方数的连续奇数之和.ipynb](translated-notebooks/离散数学/数列与级数/立方数的连续奇数之和.ipynb) | 立方数表示为连续奇数和 (Representing cubes as sums of consecutive odd numbers) |
+| [等差数列求和.ipynb](translated-notebooks/离散数学/数列与级数/等差数列求和.ipynb) | 等差数列求和概念与公式 (Arithmetic sum concepts and formulas) |
+| [等差数列求和的推广.ipynb](translated-notebooks/离散数学/数列与级数/等差数列求和的推广.ipynb) | 等差数列求和公式的推广 (Generalizations of arithmetic sum formulas) |
+| [等比数列求和.ipynb](translated-notebooks/离散数学/数列与级数/等比数列求和.ipynb) | 等比数列概念与公式 (Geometric series concepts and formulas) |
+| [连续倍数求和.ipynb](translated-notebooks/离散数学/数列与级数/连续倍数求和.ipynb) | 连续倍数的求和 (Sums of consecutive multiples) |
+| [连续整除乘积求和.ipynb](translated-notebooks/离散数学/数列与级数/连续整除乘积求和.ipynb) | 连续整除乘积的倒数求和 (Sums of reciprocals of consecutive multiples) |
 
 ## Usage
 
@@ -153,6 +189,8 @@ Contributions are welcome! If you'd like to contribute:
 2. Create a new branch for your feature
 3. Add your changes
 4. Submit a pull request
+
+For Chinese translations, you can use the provided `translate_notebooks.py` script to generate translated versions of notebooks.
 
 ## License
 
