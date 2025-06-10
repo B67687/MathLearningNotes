@@ -68,7 +68,18 @@ The calculus section contains a series of advancement reports documenting progre
 | Notebook | Description |
 |----------|-------------|
 | [derivative-proofs.ipynb](calculus/derivative-proofs.ipynb) | Proofs related to derivatives |
-| [advancements-report-*.ipynb](calculus/) | Daily/weekly progress reports from March-April 2025 |
+| [advancements-report-14th-march-2025.ipynb](calculus/advancements-report-14th-march-2025.ipynb) | Progress report from March 14, 2025 |
+| [advancements-report-15th-march-2025.ipynb](calculus/advancements-report-15th-march-2025.ipynb) | Progress report from March 15, 2025 |
+| [advancements-report-16th-april-2025.ipynb](calculus/advancements-report-16th-april-2025.ipynb) | Progress report from April 16, 2025 |
+| [advancements-report-16th-march-2025.ipynb](calculus/advancements-report-16th-march-2025.ipynb) | Progress report from March 16, 2025 |
+| [advancements-report-17th-march-2025.ipynb](calculus/advancements-report-17th-march-2025.ipynb) | Progress report from March 17, 2025 |
+| [advancements-report-18th-march-2025.ipynb](calculus/advancements-report-18th-march-2025.ipynb) | Progress report from March 18, 2025 |
+| [advancements-report-19th-march-2025.ipynb](calculus/advancements-report-19th-march-2025.ipynb) | Progress report from March 19, 2025 |
+| [advancements-report-20th-march-2025.ipynb](calculus/advancements-report-20th-march-2025.ipynb) | Progress report from March 20, 2025 |
+| [advancements-report-21st-march-2025.ipynb](calculus/advancements-report-21st-march-2025.ipynb) | Progress report from March 21, 2025 |
+| [advancements-report-23rd-march-2025.ipynb](calculus/advancements-report-23rd-march-2025.ipynb) | Progress report from March 23, 2025 |
+| [advancements-report-25th-march-2025.ipynb](calculus/advancements-report-25th-march-2025.ipynb) | Progress report from March 25, 2025 |
+| [advancements-report-27th-march-2025.ipynb](calculus/advancements-report-27th-march-2025.ipynb) | Progress report from March 27, 2025 |
 
 ### Discrete Mathematics
 
@@ -97,7 +108,7 @@ The calculus section contains a series of advancement reports documenting progre
 | [geometric-sum.ipynb](discrete-mathematics/series-and-sequences/geometric-sum.ipynb) | Geometric series concepts and formulas |
 | [sharing-and-splitting.ipynb](discrete-mathematics/series-and-sequences/sharing-and-splitting.ipynb) | Problems involving sharing and splitting sequences |
 | [sum-of-consecutive-multiples.ipynb](discrete-mathematics/series-and-sequences/sum-of-consecutive-multiples.ipynb) | Sums of consecutive multiples |
-| [sum-of-cubes-with-arithmetic-sum-old.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-arithmetic-sum-old.ipynb) | Old approach to sum of cubes using arithmetic sums |
+| [sum-of-cubes-with-arithmetic-sum (compressed).ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-arithmetic-sum%20(compressed).ipynb) | Compressed version of sum of cubes using arithmetic sums |
 | [sum-of-cubes-with-arithmetic-sum.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-arithmetic-sum.ipynb) | Sum of cubes using arithmetic sum formulas |
 | [sum-of-cubes-with-sum-of-squares.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-sum-of-squares.ipynb) | Relationship between sum of cubes and sum of squares |
 | [sum-of-cubes-with-symmetric-sums.ipynb](discrete-mathematics/series-and-sequences/sum-of-cubes-with-symmetric-sums.ipynb) | Sum of cubes using symmetric sum approach |
@@ -105,8 +116,11 @@ The calculus section contains a series of advancement reports documenting progre
 | [sum-of-odd-numbers-is-square.ipynb](discrete-mathematics/series-and-sequences/sum-of-odd-numbers-is-square.ipynb) | Proof that sum of odd numbers equals perfect squares |
 | [sum-of-positive-integers-to-odd-or-even-integer.ipynb](discrete-mathematics/series-and-sequences/sum-of-positive-integers-to-odd-or-even-integer.ipynb) | Sum formulas for positive integers up to odd or even numbers |
 | [sum-of-reciprocal-consecutive-multiples.ipynb](discrete-mathematics/series-and-sequences/sum-of-reciprocal-consecutive-multiples.ipynb) | Sums of reciprocals of consecutive multiples |
+| [sum-of-squares-with-arithmetic-sum.ipynb](discrete-mathematics/series-and-sequences/sum-of-squares-with-arithmetic-sum.ipynb) | Sum of squares using arithmetic sum formulas |
+| [sum-of-squares-with-symmetric-sum.ipynb](discrete-mathematics/series-and-sequences/sum-of-squares-with-symmetric-sum.ipynb) | Sum of squares using symmetric sum approach |
 | [symmetric-sum-of-even-numbers.ipynb](discrete-mathematics/series-and-sequences/symmetric-sum-of-even-numbers.ipynb) | Symmetric approach to summing even numbers |
 | [symmetric-sum-of-odd-numbers.ipynb](discrete-mathematics/series-and-sequences/symmetric-sum-of-odd-numbers.ipynb) | Symmetric approach to summing odd numbers |
+| [triangular-numbers-and-their-sum.ipynb](discrete-mathematics/series-and-sequences/triangular-numbers-and-their-sum.ipynb) | Triangular numbers and their sum formulas |
 
 ### Fractals
 
@@ -122,7 +136,9 @@ The calculus section contains a series of advancement reports documenting progre
 | [getting-definitions-right.ipynb](trigonometry/getting-definitions-right.ipynb) | Precise definitions of trigonometric concepts |
 | [r-formula.ipynb](trigonometry/r-formula.ipynb) | R-formula in trigonometry |
 | [the-way-is-to-simplify-case-study.ipynb](trigonometry/the-way-is-to-simplify-case-study.ipynb) | Case study on simplification techniques |
-| [advancements-report-*.ipynb](trigonometry/) | Progress reports from March 2025 |
+| [advancements-report-4th-march-2025.ipynb](trigonometry/advancements-report-4th-march-2025.ipynb) | Progress report from March 4, 2025 |
+| [advancements-report-8th-march-2025.ipynb](trigonometry/advancements-report-8th-march-2025.ipynb) | Progress report from March 8, 2025 |
+| [advancements-report-10th-march-2025.ipynb](trigonometry/advancements-report-10th-march-2025.ipynb) | Progress report from March 10, 2025 |
 
 ### Translated Notebooks (中文翻译笔记本)
 
@@ -190,7 +206,6 @@ Contributions are welcome! If you'd like to contribute:
 3. Add your changes
 4. Submit a pull request
 
-For Chinese translations, you can use the provided `translate_notebooks.py` script to generate translated versions of notebooks.
 
 ## License
 
