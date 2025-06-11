@@ -165,6 +165,7 @@ The `translated-notebooks` directory contains Chinese translations of various no
 | [叠缩求和.ipynb](translated-notebooks/离散数学/数列与级数/叠缩求和.ipynb) | 叠缩求和方法 (Telescoping sum methods) |
 | [奇数总和的对称之和.ipynb](translated-notebooks/离散数学/数列与级数/奇数总和的对称之和.ipynb) | 奇数总和的对称方法 (Symmetric approach to summing odd numbers) |
 | [奇数的和是平方数.ipynb](translated-notebooks/离散数学/数列与级数/奇数的和是平方数.ipynb) | 奇数和等于完全平方数的证明 (Proof that sum of odd numbers equals perfect squares) |
+| [平方和的对称和之推导.ipynb](translated-notebooks/离散数学/数列与级数/平方和的对称和之推导.ipynb) | 平方和的对称方法推导 (Derivation of symmetric approach to sum of squares) |
 | [平方和的等差数列之推导.ipynb](translated-notebooks/离散数学/数列与级数/平方和的等差数列之推导.ipynb) | 平方和与等差数列的关系推导 (Derivation of relationship between sum of squares and arithmetic sequences) |
 | [立方和的对称和之推导.ipynb](translated-notebooks/离散数学/数列与级数/立方和的对称和之推导.ipynb) | 立方和的对称方法推导 (Derivation of symmetric approach to sum of cubes) |
 | [立方和的平方和之推导.ipynb](translated-notebooks/离散数学/数列与级数/立方和的平方和之推导.ipynb) | 立方和与平方和关系的推导 (Derivation of relationship between sum of cubes and sum of squares) |
