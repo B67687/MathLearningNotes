@@ -213,7 +213,7 @@ The `translated-notebooks` directory contains Chinese translations of various no
 | [连续倍数倒数之和.ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/连续倍数倒数之和.ipynb) | 连续倍数倒数之和 (Sums of reciprocals of consecutive multiples) |
 | [算术级数.ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/算术级数.ipynb) | 算术级数概念与公式 (Basic arithmetic sum concepts and formulas) |
 | [算术级数推广.ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/算术级数推广.ipynb) | 算术级数推广 (Generalizations of arithmetic sum formulas) |
-| [立方数之和与算术级数 (压缩版).ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/立方数之和与算术级数 (压缩版).ipynb) | 立方数之和与算术级数 (压缩版) (Compressed version of sum of cubes using arithmetic sums) |
+| [立方数之和与算术级数 (压缩版).ipynb](<translated-notebooks/discrete-mathematics/series-and-sequences/立方数之和与算术级数 (压缩版).ipynb>) | 立方数之和与算术级数 (压缩版) (Compressed version of sum of cubes using arithmetic sums) |
 | [立方数之和与算术级数.ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/立方数之和与算术级数.ipynb) | 立方数之和与算术级数 (Sum of cubes using arithmetic sum formulas) |
 | [立方数之和与平方数之和.ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/立方数之和与平方数之和.ipynb) | 立方数之和与平方数之和的关系 (Relationship between sum of cubes and sum of squares) |
 | [立方数之和与对称和.ipynb](translated-notebooks/discrete-mathematics/series-and-sequences/立方数之和与对称和.ipynb) | 立方数之和与对称和 (Sum of cubes using symmetric sum approach) |
