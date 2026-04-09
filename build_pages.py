@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import html
+import json
 import os
 import re
 import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -69,6 +71,7 @@ NOTEBOOK_THEME_OVERRIDES = """
   body.jp-Notebook .jp-RenderedText,
   body.jp-Notebook .jp-RenderedLatex {
     color: #1f2328;
+    line-height: 1.65;
   }
 
   body.jp-Notebook .jp-InputArea-editor,
@@ -84,6 +87,44 @@ NOTEBOOK_THEME_OVERRIDES = """
   body.jp-Notebook .jp-RenderedText pre .ansi-white-intense-fg,
   body.jp-Notebook .jp-RenderedText pre .ansi-default-inverse-fg {
     color: #1f2328;
+  }
+
+  body.jp-Notebook .jp-RenderedHTMLCommon a,
+  body.jp-Notebook .jp-RenderedMarkdown a {
+    color: #0969da;
+  }
+
+  body.jp-Notebook .jp-RenderedHTMLCommon h1,
+  body.jp-Notebook .jp-RenderedHTMLCommon h2,
+  body.jp-Notebook .jp-RenderedHTMLCommon h3,
+  body.jp-Notebook .jp-RenderedHTMLCommon h4,
+  body.jp-Notebook .jp-RenderedHTMLCommon h5,
+  body.jp-Notebook .jp-RenderedHTMLCommon h6 {
+    color: #1f2328;
+  }
+
+  body.jp-Notebook .jp-RenderedHTMLCommon table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+  }
+
+  body.jp-Notebook .jp-RenderedHTMLCommon th,
+  body.jp-Notebook .jp-RenderedHTMLCommon td {
+    border: 1px solid #d0d7de;
+    padding: 6px 13px;
+  }
+
+  body.jp-Notebook .jp-RenderedHTMLCommon code:not(pre code) {
+    background: rgba(175, 184, 193, 0.2);
+    border-radius: 6px;
+    color: #1f2328;
+    padding: 0.15em 0.35em;
+  }
+
+  body.jp-Notebook mjx-container,
+  body.jp-Notebook .MathJax {
+    color: #1f2328 !important;
   }
 </style>
 """
@@ -104,11 +145,167 @@ def clear_output_dir() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def read_braced_group(text: str, start_index: int) -> tuple[str | None, int]:
+    if start_index >= len(text) or text[start_index] != "{":
+        return None, start_index
+
+    depth = 0
+    parts: list[str] = []
+    index = start_index
+
+    while index < len(text):
+        character = text[index]
+        if character == "{":
+            if depth > 0:
+                parts.append(character)
+            depth += 1
+        elif character == "}":
+            depth -= 1
+            if depth == 0:
+                return "".join(parts), index + 1
+            if depth < 0:
+                break
+            parts.append(character)
+        else:
+            parts.append(character)
+        index += 1
+
+    return None, start_index
+
+
+def unwrap_textcolor_macros(text: str) -> str:
+    token = "\\textcolor"
+    output: list[str] = []
+    index = 0
+
+    while index < len(text):
+        if text.startswith(token, index):
+            cursor = index + len(token)
+            while cursor < len(text) and text[cursor].isspace():
+                cursor += 1
+
+            _, cursor = read_braced_group(text, cursor)
+            if cursor == index + len(token):
+                output.append(text[index])
+                index += 1
+                continue
+
+            while cursor < len(text) and text[cursor].isspace():
+                cursor += 1
+
+            body, end_index = read_braced_group(text, cursor)
+            if body is None:
+                output.append(text[index])
+                index += 1
+                continue
+
+            output.append(unwrap_textcolor_macros(body))
+            index = end_index
+            continue
+
+        output.append(text[index])
+        index += 1
+
+    return "".join(output)
+
+
+def strip_color_declarations(text: str) -> str:
+    return re.sub(r"\\color\s*\{[^{}]+\}", "", text)
+
+
+def is_list_line(line: str) -> bool:
+    return bool(re.match(r"^\s*(?:[-*+]|\d+\.)\s+", line))
+
+
+def is_indented_table_line(line: str) -> bool:
+    return bool(re.match(r"^(?: {4}|\t)\|.+\|\s*$", line))
+
+
+def is_table_separator(line: str) -> bool:
+    normalized = re.sub(r"^(?: {4}|\t)", "", line, count=1)
+    return bool(
+        re.fullmatch(r"\|?(?:\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*", normalized)
+    )
+
+
+def normalize_list_indented_tables(text: str) -> str:
+    lines = text.splitlines()
+    normalized: list[str] = []
+    previous_nonblank = ""
+    index = 0
+
+    while index < len(lines):
+        line = lines[index]
+        if is_indented_table_line(line):
+            block_end = index
+            while block_end < len(lines) and is_indented_table_line(lines[block_end]):
+                block_end += 1
+
+            block = lines[index:block_end]
+            if len(block) >= 2 and is_table_separator(block[1]) and is_list_line(previous_nonblank):
+                normalized.extend(
+                    re.sub(r"^(?: {4}|\t)", "", block_line, count=1)
+                    for block_line in block
+                )
+                index = block_end
+                continue
+
+        normalized.append(line)
+        if line.strip():
+            previous_nonblank = line
+        index += 1
+
+    return "\n".join(normalized)
+
+
+def preprocess_markdown_text(text: str) -> str:
+    updated = unwrap_textcolor_macros(text)
+    updated = strip_color_declarations(updated)
+    updated = normalize_list_indented_tables(updated)
+    return updated
+
+
+def create_preprocessed_notebook(notebook_path: Path) -> tuple[Path, Path | None]:
+    notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+    changed = False
+
+    for cell in notebook.get("cells", []):
+        if cell.get("cell_type") != "markdown":
+            continue
+
+        original = "".join(cell.get("source", []))
+        updated = preprocess_markdown_text(original)
+        if updated == original:
+            continue
+
+        cell["source"] = updated.splitlines(keepends=True)
+        changed = True
+
+    if not changed:
+        return notebook_path, None
+
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        suffix=".ipynb",
+        prefix=f"{notebook_path.stem}.pages-",
+        dir=notebook_path.parent,
+        delete=False,
+        encoding="utf-8",
+        newline="\n",
+    ) as handle:
+        json.dump(notebook, handle, ensure_ascii=False, indent=1)
+        handle.write("\n")
+        temporary_path = Path(handle.name)
+
+    return temporary_path, temporary_path
+
+
 def run_nbconvert(notebook_path: Path) -> Path:
     relative_path = notebook_path.relative_to(ROOT)
     destination = OUTPUT_DIR / relative_path.with_suffix(".html")
     destination.parent.mkdir(parents=True, exist_ok=True)
 
+    source_path, temporary_path = create_preprocessed_notebook(notebook_path)
     command = [
         sys.executable,
         "-m",
@@ -119,9 +316,15 @@ def run_nbconvert(notebook_path: Path) -> Path:
         destination.stem,
         "--output-dir",
         str(destination.parent),
-        str(notebook_path),
+        str(source_path),
     ]
-    subprocess.run(command, check=True)
+
+    try:
+        subprocess.run(command, check=True)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+
     rewrite_html_links(destination)
     return destination
 
@@ -202,10 +405,44 @@ def build_homepage() -> None:
         padding: 32px 16px 48px;
       }}
       .markdown-body {{
-        background: #ffffff;
+        background: #ffffff !important;
+        color: #1f2328 !important;
         border: 1px solid #d0d7de;
         border-radius: 12px;
         padding: 32px;
+      }}
+      .markdown-body :where(p, li, ul, ol, dl, td, th, blockquote, strong, em) {{
+        color: #1f2328 !important;
+      }}
+      .markdown-body :where(h1, h2, h3, h4, h5, h6) {{
+        color: #1f2328 !important;
+      }}
+      .markdown-body a {{
+        color: #0969da !important;
+      }}
+      .markdown-body code {{
+        color: #1f2328 !important;
+        background-color: rgba(175, 184, 193, 0.2) !important;
+      }}
+      .markdown-body pre,
+      .markdown-body pre code {{
+        color: #e6edf3 !important;
+        background: #1f2328 !important;
+      }}
+      .site-note,
+      .site-note code {{
+        color: #1f2328 !important;
+      }}
+      @media (prefers-color-scheme: dark) {{
+        body {{
+          background: #f6f8fa;
+          color: #1f2328;
+        }}
+        .markdown-body {{
+          background: #ffffff !important;
+          color: #1f2328 !important;
+          border-color: #d0d7de !important;
+        }}
       }}
       .site-note {{
         margin-bottom: 16px;
