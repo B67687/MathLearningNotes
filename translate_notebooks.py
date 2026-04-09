@@ -34,15 +34,15 @@ def should_skip(path: Path) -> bool:
 
 
 def get_api_key() -> str:
-    return os.environ.get("QWEN_API_KEY") or os.environ.get("DASHSCOPE_API_KEY", "")
+    return (os.environ.get("QWEN_API_KEY") or os.environ.get("DASHSCOPE_API_KEY") or "").strip()
 
 
 def get_endpoint() -> str:
-    return os.environ.get("QWEN_API_ENDPOINT", DEFAULT_ENDPOINT)
+    return (os.environ.get("QWEN_API_ENDPOINT") or DEFAULT_ENDPOINT).strip()
 
 
 def get_model() -> str:
-    return os.environ.get("QWEN_MODEL", DEFAULT_MODEL)
+    return (os.environ.get("QWEN_MODEL") or DEFAULT_MODEL).strip()
 
 
 def translate_text(text: str, api_key: str) -> str:
