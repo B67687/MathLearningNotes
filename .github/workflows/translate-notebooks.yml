@@ -4,34 +4,59 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "**/*.ipynb"
+      - "translate_notebooks.py"
+      - ".github/workflows/translate-notebooks.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**/*.ipynb"
+      - "translate_notebooks.py"
+      - ".github/workflows/translate-notebooks.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   translate:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
-          pip install nbformat requests  # nbformat for reading/writing notebooks
+          pip install nbformat requests
 
       - name: Translate Notebooks
         env:
           QWEN_API_KEY: ${{ secrets.QWEN_API_KEY }}
+          DASHSCOPE_API_KEY: ${{ secrets.DASHSCOPE_API_KEY }}
+          QWEN_API_ENDPOINT: ${{ vars.QWEN_API_ENDPOINT }}
+          QWEN_MODEL: ${{ vars.QWEN_MODEL }}
         run: |
-          python translate-notebooks.py  # Translation script
+          python translate_notebooks.py
 
-      - name: Commit and push changes
+      - name: Commit translated notebooks
+        if: github.event_name != 'pull_request'
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "GitHub Actions Bot"
-          git add .
-          git commit -m "Translate notebooks to Chinese"
-          git checkout -b translated # Create a new branch called 'translated'
-          git push origin translated # Push to the 'translated' branch
+          if [ -z "$(git status --porcelain -- translated-notebooks)" ]; then
+            echo "No translated notebook changes to commit."
+            exit 0
+          fi
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "GitHub Actions Bot"
+          git add translated-notebooks
+          git commit -m "chore: update Chinese notebook translations"
+          git push origin HEAD:main
