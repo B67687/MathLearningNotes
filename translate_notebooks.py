@@ -1,125 +1,216 @@
-import nbformat
+from __future__ import annotations
+
+import argparse
+import logging
 import os
+import time
+from pathlib import Path
+
+import nbformat
 import requests
-import json
-import time  # For rate limiting
-import logging  # For logging errors and debugging
-from ratelimit import limits, sleep_and_retry  # For rate limiting
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# --- Qwen API Configuration ---
-QWEN_API_ENDPOINT = "YOUR_QWEN_API_ENDPOINT"  # Replace with the actual endpoint
-QWEN_API_RATE_LIMIT_CALLS = 10  # Example: 10 calls
-QWEN_API_RATE_LIMIT_PERIOD = 60  # Example: 60 seconds
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-@sleep_and_retry
-@limits(calls=QWEN_API_RATE_LIMIT_CALLS, period=QWEN_API_RATE_LIMIT_PERIOD)
-def translate_text(text, api_key):
-    """Translates text using the Qwen API with rate limiting and error handling."""
-    if not text:
-        return ""  # Handle empty text gracefully
+ROOT = Path(__file__).resolve().parent
+OUTPUT_DIR = ROOT / "translated-notebooks"
+DEFAULT_ENDPOINT = "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions"
+DEFAULT_MODEL = "qwen-mt-turbo"
+REQUEST_TIMEOUT_SECONDS = 60
+REQUEST_DELAY_SECONDS = float(os.environ.get("QWEN_REQUEST_DELAY_SECONDS", "0.3"))
+SKIP_DIRS = {
+    ".git",
+    ".github",
+    ".ipynb_checkpoints",
+    "translated-notebooks",
+}
+
+
+class TranslationError(RuntimeError):
+    pass
+
+
+def should_skip(path: Path) -> bool:
+    return any(part in SKIP_DIRS for part in path.parts)
+
+
+def env_value(*names: str, default: str = "") -> str:
+    for name in names:
+        value = os.environ.get(name)
+        if value and value.strip():
+            return value.strip()
+    return default
+
+
+def get_api_key() -> str:
+    return env_value("DASHSCOPE_API_KEY", "QWEN_API_KEY")
+
+
+def get_endpoint() -> str:
+    return env_value("DASHSCOPE_API_ENDPOINT", "QWEN_API_ENDPOINT", default=DEFAULT_ENDPOINT)
+
+
+def get_model() -> str:
+    return env_value("QWEN_MODEL", default=DEFAULT_MODEL)
+
+
+def translate_text(text: str, api_key: str, session: requests.Session) -> str:
+    if not text or not text.strip():
+        return text
+
+    payload = {
+        "model": get_model(),
+        "messages": [{"role": "user", "content": text}],
+        "translation_options": {
+            "source_lang": "auto",
+            "target_lang": "zh",
+        },
+    }
 
     try:
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-
-        data = {
-            "text": text,
-            "target_language": "zh"  # Chinese
-        }
-
-        response = requests.post(QWEN_API_ENDPOINT, headers=headers, data=json.dumps(data), timeout=10)  # Add timeout
-        response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+        response = session.post(
+            get_endpoint(),
+            json=payload,
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+        if not response.ok:
+            raise TranslationError(
+                f"Translation request failed with status {response.status_code}: "
+                f"{response.text.strip()}"
+            )
         result = response.json()
+        return result["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError, ValueError) as exc:
+        raise TranslationError(f"Unexpected translation response format: {exc}") from exc
+    except requests.RequestException as exc:
+        raise TranslationError(f"Translation request failed: {exc}") from exc
+    finally:
+        if REQUEST_DELAY_SECONDS > 0:
+            time.sleep(REQUEST_DELAY_SECONDS)
 
-        if "translated_text" in result:
-            return result["translated_text"]
-        else:
-            logging.warning(f"Translation API response missing 'translated_text': {result}")
-            return text  # Return original text if translation fails
 
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error during translation: {e}")
-        return text  # Return original text on error
-    except json.JSONDecodeError as e:
-        logging.error(f"Error decoding JSON response: {e}")
-        return text
-    except Exception as e:
-        logging.exception(f"Unexpected error during translation: {e}") # Log full exception
-        return text
-
-def translate_notebook(notebook_path, api_key, output_folder):
-    """Translates the text content of a Jupyter Notebook and saves it to a new file in the output folder, preserving the folder structure."""
+def translate_notebook(notebook_path: Path, api_key: str, session: requests.Session) -> bool:
     try:
-        with open(notebook_path, 'r', encoding='utf-8') as f:
-            try:
-                nb = nbformat.read(f, as_version=4)
-            except nbformat.reader.NotJSONError as e:
-                logging.error(f"Error reading notebook {notebook_path}: Invalid JSON format. Skipping.")
-                return
-            except Exception as e:
-                logging.error(f"Error reading notebook {notebook_path}: {e}. Skipping.")
-                return
+        with notebook_path.open("r", encoding="utf-8") as handle:
+            notebook = nbformat.read(handle, as_version=4)
+    except nbformat.reader.NotJSONError:
+        logging.error("Skipping invalid notebook JSON: %s", notebook_path)
+        return False
+    except OSError as exc:
+        logging.error("Failed to read %s: %s", notebook_path, exc)
+        return False
 
-        for cell in nb.cells:
-            if cell.cell_type == 'markdown':  # Only translate markdown cells
-                try:
-                    cell.source = translate_text(cell.source, api_key)
-                except Exception as e:
-                    logging.error(f"Error translating cell in {notebook_path}: {e}")
-                    # Consider whether to continue translating other cells or skip the notebook
+    changed = False
+    for cell in notebook.cells:
+        if cell.cell_type != "markdown":
+            continue
 
-        # Create the output path, preserving the folder structure
-        relative_path = os.path.relpath(notebook_path, ".")  # Path relative to the root
-        translated_path = os.path.join(output_folder, relative_path)
-        translated_dir = os.path.dirname(translated_path)  # Directory of the translated file
+        translated = translate_text(cell.source, api_key, session)
+        if translated != cell.source:
+            cell.source = translated
+            changed = True
 
-        # Create the directory if it doesn't exist
+    output_path = OUTPUT_DIR / notebook_path.relative_to(ROOT)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as handle:
+        nbformat.write(notebook, handle)
+
+    logging.info("Translated %s -> %s", notebook_path.relative_to(ROOT), output_path.relative_to(ROOT))
+    return changed
+
+
+def find_all_notebooks() -> list[Path]:
+    return sorted(path for path in ROOT.rglob("*.ipynb") if not should_skip(path))
+
+
+def resolve_notebook_paths(input_paths: list[str]) -> list[Path]:
+    resolved_paths: list[Path] = []
+    seen: set[Path] = set()
+
+    for input_path in input_paths:
+        candidate = (ROOT / input_path).resolve()
         try:
-            os.makedirs(translated_dir, exist_ok=True)
-        except OSError as e:
-            logging.error(f"Error creating directory {translated_dir}: {e}")
-            return
+            relative = candidate.relative_to(ROOT)
+        except ValueError:
+            logging.warning("Skipping notebook outside repository: %s", input_path)
+            continue
 
-        # Write the translated notebook
+        if should_skip(relative) or candidate.suffix != ".ipynb" or not candidate.exists():
+            logging.warning("Skipping invalid notebook path: %s", input_path)
+            continue
+
+        if candidate not in seen:
+            seen.add(candidate)
+            resolved_paths.append(candidate)
+
+    return sorted(resolved_paths)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Translate Jupyter notebooks into Chinese.")
+    parser.add_argument("notebooks", nargs="*", help="Notebook paths relative to the repository root.")
+    parser.add_argument("--all", action="store_true", help="Translate all notebooks in the repository.")
+    parser.add_argument(
+        "--file-list",
+        help="Path to a newline-delimited file containing notebook paths relative to the repository root.",
+    )
+    return parser.parse_args()
+
+
+def load_requested_notebooks(args: argparse.Namespace) -> list[Path]:
+    if args.all:
+        return find_all_notebooks()
+
+    requested_paths = list(args.notebooks)
+    if args.file_list:
+        requested_paths.extend(
+            line.strip()
+            for line in Path(args.file_list).read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+
+    if not requested_paths:
+        return []
+
+    return resolve_notebook_paths(requested_paths)
+
+
+def main() -> int:
+    args = parse_args()
+
+    api_key = get_api_key()
+    if not api_key:
+        logging.error("DASHSCOPE_API_KEY or QWEN_API_KEY must be configured.")
+        return 1
+
+    notebooks = load_requested_notebooks(args)
+    if not notebooks:
+        logging.info("No notebook files selected for translation.")
+        return 0
+
+    logging.info("Using endpoint: %s", get_endpoint())
+    logging.info("Using model: %s", get_model())
+
+    translated_count = 0
+    session = requests.Session()
+    session.headers.update(
+        {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+    )
+
+    for notebook_path in notebooks:
         try:
-            with open(translated_path, 'w', encoding='utf-8') as f:
-                nbformat.write(nb, f)
-            logging.info(f"Translated: {notebook_path} -> {translated_path}")
-        except Exception as e:
-            logging.error(f"Error writing translated notebook to {translated_path}: {e}")
+            if translate_notebook(notebook_path, api_key, session):
+                translated_count += 1
+        except TranslationError as exc:
+            logging.error("Stopping after translation failure in %s: %s", notebook_path, exc)
+            return 1
 
-
-    except FileNotFoundError:
-        logging.error(f"File not found: {notebook_path}")
-    except Exception as e:
-        logging.exception(f"Unexpected error processing {notebook_path}: {e}") # Log full exception
+    logging.info("Translation process completed. %s notebooks updated.", translated_count)
+    return 0
 
 
 if __name__ == "__main__":
-    api_key = os.environ.get("QWEN_API_KEY")
-    if not api_key:
-        logging.error("Error: QWEN_API_KEY not found in environment variables.")
-        exit(1)
-
-    output_folder = "translated_notebooks"  # Define the output folder name
-
-    # Find all .ipynb files in the repository
-    notebook_files = []
-    for root, _, files in os.walk("."):
-        for file in files:
-            if file.endswith(".ipynb"):
-                notebook_files.append(os.path.join(root, file))
-
-    if not notebook_files:
-        logging.info("No notebook files found.")
-        exit(0)
-
-    for notebook_file in notebook_files:
-        translate_notebook(notebook_file, api_key, output_folder)
-
-    logging.info("Translation process completed.")
+    raise SystemExit(main())
