@@ -69,7 +69,11 @@ def translate_text(text: str, api_key: str) -> str:
             json=payload,
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
-        response.raise_for_status()
+        if not response.ok:
+            raise TranslationError(
+                f"Translation request failed with status {response.status_code}: "
+                f"{response.text.strip()}"
+            )
         result = response.json()
         return result["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError, ValueError) as exc:
