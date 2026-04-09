@@ -32,6 +32,62 @@ STATIC_SUFFIXES = {
     ".yaml",
 }
 
+NOTEBOOK_THEME_OVERRIDES = """
+<style>
+  body.jp-Notebook {
+    background: #f6f8fa;
+    color: #1f2328;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  body.jp-Notebook {
+    --jp-ui-font-color0: rgba(31, 35, 40, 1);
+    --jp-ui-font-color1: rgba(31, 35, 40, 0.92);
+    --jp-ui-font-color2: rgba(31, 35, 40, 0.72);
+    --jp-ui-font-color3: rgba(31, 35, 40, 0.56);
+    --jp-content-font-color0: rgba(31, 35, 40, 1);
+    --jp-content-font-color1: rgba(31, 35, 40, 0.92);
+    --jp-content-font-color2: rgba(31, 35, 40, 0.72);
+    --jp-content-font-color3: rgba(31, 35, 40, 0.56);
+    --jp-layout-color0: #ffffff;
+    --jp-layout-color1: #ffffff;
+    --jp-layout-color2: #f6f8fa;
+    --jp-rendermime-table-row-background: #f6f8fa;
+    --jp-rendermime-table-row-hover-background: #eaeef2;
+    --jp-cell-editor-background: #ffffff;
+    --jp-cell-editor-active-background: #ffffff;
+    --jp-cell-editor-border-color: #d0d7de;
+    --jp-cell-editor-active-border-color: #0969da;
+  }
+
+  body.jp-Notebook .jp-Cell,
+  body.jp-Notebook .jp-InputArea,
+  body.jp-Notebook .jp-OutputArea-output,
+  body.jp-Notebook .jp-RenderedHTMLCommon,
+  body.jp-Notebook .jp-RenderedMarkdown,
+  body.jp-Notebook .jp-RenderedText,
+  body.jp-Notebook .jp-RenderedLatex {
+    color: #1f2328;
+  }
+
+  body.jp-Notebook .jp-InputArea-editor,
+  body.jp-Notebook .jp-CodeMirrorEditor,
+  body.jp-Notebook .highlight,
+  body.jp-Notebook .jp-RenderedHTMLCommon pre,
+  body.jp-Notebook .jp-RenderedText pre {
+    background: #ffffff;
+    color: #1f2328;
+  }
+
+  body.jp-Notebook .jp-RenderedText pre .ansi-white-fg,
+  body.jp-Notebook .jp-RenderedText pre .ansi-white-intense-fg,
+  body.jp-Notebook .jp-RenderedText pre .ansi-default-inverse-fg {
+    color: #1f2328;
+  }
+</style>
+"""
+
 
 def should_skip(path: Path) -> bool:
     return any(part in EXCLUDED_PARTS for part in path.parts)
@@ -77,6 +133,8 @@ def rewrite_notebook_links(text: str) -> str:
 def rewrite_html_links(html_path: Path) -> None:
     content = html_path.read_text(encoding="utf-8")
     updated = rewrite_notebook_links(content)
+    if NOTEBOOK_THEME_OVERRIDES not in updated and "</head>" in updated:
+        updated = updated.replace("</head>", f"{NOTEBOOK_THEME_OVERRIDES}\n</head>", 1)
     if updated != content:
         html_path.write_text(updated, encoding="utf-8")
 
