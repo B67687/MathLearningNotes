@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import logging
 import os
 import time
@@ -33,39 +34,42 @@ def should_skip(path: Path) -> bool:
     return any(part in SKIP_DIRS for part in path.parts)
 
 
+def env_value(*names: str, default: str = "") -> str:
+    for name in names:
+        value = os.environ.get(name)
+        if value and value.strip():
+            return value.strip()
+    return default
+
+
 def get_api_key() -> str:
-    return (os.environ.get("QWEN_API_KEY") or os.environ.get("DASHSCOPE_API_KEY") or "").strip()
+    return env_value("DASHSCOPE_API_KEY", "QWEN_API_KEY")
 
 
 def get_endpoint() -> str:
-    return (os.environ.get("QWEN_API_ENDPOINT") or DEFAULT_ENDPOINT).strip()
+    return env_value("DASHSCOPE_API_ENDPOINT", "QWEN_API_ENDPOINT", default=DEFAULT_ENDPOINT)
 
 
 def get_model() -> str:
-    return (os.environ.get("QWEN_MODEL") or DEFAULT_MODEL).strip()
+    return env_value("QWEN_MODEL", default=DEFAULT_MODEL)
 
 
-def translate_text(text: str, api_key: str) -> str:
+def translate_text(text: str, api_key: str, session: requests.Session) -> str:
     if not text or not text.strip():
         return text
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
     payload = {
         "model": get_model(),
         "messages": [{"role": "user", "content": text}],
         "translation_options": {
             "source_lang": "auto",
-            "target_lang": "Chinese",
+            "target_lang": "zh",
         },
     }
 
     try:
-        response = requests.post(
+        response = session.post(
             get_endpoint(),
-            headers=headers,
             json=payload,
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
@@ -85,7 +89,7 @@ def translate_text(text: str, api_key: str) -> str:
             time.sleep(REQUEST_DELAY_SECONDS)
 
 
-def translate_notebook(notebook_path: Path, api_key: str) -> bool:
+def translate_notebook(notebook_path: Path, api_key: str, session: requests.Session) -> bool:
     try:
         with notebook_path.open("r", encoding="utf-8") as handle:
             notebook = nbformat.read(handle, as_version=4)
@@ -101,7 +105,7 @@ def translate_notebook(notebook_path: Path, api_key: str) -> bool:
         if cell.cell_type != "markdown":
             continue
 
-        translated = translate_text(cell.source, api_key)
+        translated = translate_text(cell.source, api_key, session)
         if translated != cell.source:
             cell.source = translated
             changed = True
@@ -115,27 +119,90 @@ def translate_notebook(notebook_path: Path, api_key: str) -> bool:
     return changed
 
 
-def find_notebooks() -> list[Path]:
-    return sorted(
-        path for path in ROOT.rglob("*.ipynb") if not should_skip(path)
+def find_all_notebooks() -> list[Path]:
+    return sorted(path for path in ROOT.rglob("*.ipynb") if not should_skip(path))
+
+
+def resolve_notebook_paths(input_paths: list[str]) -> list[Path]:
+    resolved_paths: list[Path] = []
+    seen: set[Path] = set()
+
+    for input_path in input_paths:
+        candidate = (ROOT / input_path).resolve()
+        try:
+            relative = candidate.relative_to(ROOT)
+        except ValueError:
+            logging.warning("Skipping notebook outside repository: %s", input_path)
+            continue
+
+        if should_skip(relative) or candidate.suffix != ".ipynb" or not candidate.exists():
+            logging.warning("Skipping invalid notebook path: %s", input_path)
+            continue
+
+        if candidate not in seen:
+            seen.add(candidate)
+            resolved_paths.append(candidate)
+
+    return sorted(resolved_paths)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Translate Jupyter notebooks into Chinese.")
+    parser.add_argument("notebooks", nargs="*", help="Notebook paths relative to the repository root.")
+    parser.add_argument("--all", action="store_true", help="Translate all notebooks in the repository.")
+    parser.add_argument(
+        "--file-list",
+        help="Path to a newline-delimited file containing notebook paths relative to the repository root.",
     )
+    return parser.parse_args()
+
+
+def load_requested_notebooks(args: argparse.Namespace) -> list[Path]:
+    if args.all:
+        return find_all_notebooks()
+
+    requested_paths = list(args.notebooks)
+    if args.file_list:
+        requested_paths.extend(
+            line.strip()
+            for line in Path(args.file_list).read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+
+    if not requested_paths:
+        return []
+
+    return resolve_notebook_paths(requested_paths)
 
 
 def main() -> int:
+    args = parse_args()
+
     api_key = get_api_key()
     if not api_key:
-        logging.error("QWEN_API_KEY or DASHSCOPE_API_KEY must be configured.")
+        logging.error("DASHSCOPE_API_KEY or QWEN_API_KEY must be configured.")
         return 1
 
-    notebooks = find_notebooks()
+    notebooks = load_requested_notebooks(args)
     if not notebooks:
-        logging.info("No notebook files found.")
+        logging.info("No notebook files selected for translation.")
         return 0
 
+    logging.info("Using endpoint: %s", get_endpoint())
+    logging.info("Using model: %s", get_model())
+
     translated_count = 0
+    session = requests.Session()
+    session.headers.update(
+        {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+    )
+
     for notebook_path in notebooks:
         try:
-            if translate_notebook(notebook_path, api_key):
+            if translate_notebook(notebook_path, api_key, session):
                 translated_count += 1
         except TranslationError as exc:
             logging.error("Stopping after translation failure in %s: %s", notebook_path, exc)
