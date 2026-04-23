@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -170,3 +171,63 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+=======
+# Standard .gitignore for M-Namikaz-Others topic folders
+# Propagated from AI Prompting hub — safe to customize per-project
+
+# Dependencies
+node_modules/
+vendor/
+__pycache__/
+*.egg-info/
+
+# Build outputs
+dist/
+build/
+out/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+secrets.json
+credentials.json
+
+# Logs
+tmp/
+temp/
+*.log
+logs/
+
+# IDE and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS files
+*.tmp
+*.bak
+*.cache
+
+# Generated state files (hub-managed)
+sync-state.json
+.coverage
+htmlcov/
+
+# Project-specific exceptions — add below
+
+# Nested git repositories (managed independently)
+math-learning-notes-content/
+math-learning-notes-content/
+>>>>>>> 711a2d8 (Initial commit)
