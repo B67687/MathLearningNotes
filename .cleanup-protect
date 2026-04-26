@@ -21,6 +21,10 @@ AGENTS.md
 topic-insights.md
 git-github-best-practices.md
 .cleanup-protect
+audit-folder-quality.ps1
+
+# Archive folder (session history)
+archive/
 
 # Any file containing the Managed-By marker (automatically protected)
 *.md
