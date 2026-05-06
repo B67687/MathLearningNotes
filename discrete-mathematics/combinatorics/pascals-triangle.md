@@ -1,6 +1,7 @@
 ---
 title: "Pascal's Triangle"
 source_notebook: "discrete-mathematics/combinatorics/pascals-triangle.ipynb"
+archived_notebook: "archive/notebooks/discrete-mathematics/combinatorics/pascals-triangle.ipynb"
 original_human_author: B67687
 polished_by: GPT-5
 review_status: needs-human-review

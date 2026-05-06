@@ -15,6 +15,7 @@ SKIP_PARTS = {
     ".ipynb_checkpoints",
     "__pycache__",
     "_site",
+    "archive",
     "markdown-notes",
 }
 

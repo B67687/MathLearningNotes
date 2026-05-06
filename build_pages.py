@@ -17,9 +17,12 @@ OUTPUT_DIR = Path(os.environ.get("PAGES_OUTPUT_DIR", ROOT / "_site"))
 EXCLUDED_PARTS = {
     ".git",
     ".github",
+    ".opencode",
     ".ipynb_checkpoints",
     "__pycache__",
     "_site",
+    "archive",
+    "markdown-notes",
 }
 STATIC_SUFFIXES = {
     ".png",
@@ -329,13 +332,22 @@ def run_nbconvert(notebook_path: Path) -> Path:
     return destination
 
 
-def rewrite_notebook_links(text: str) -> str:
-    return re.sub(r"(?P<prefix>[\(/\"'=])(?P<target>[^\"')>]+?)\.ipynb(?P<suffix>[\"')>#?])", r"\g<prefix>\g<target>.html\g<suffix>", text)
+def rewrite_note_links(text: str) -> str:
+    updated = re.sub(
+        r"(?P<prefix>[\(/\"'=])(?P<target>[^\"')>]+?)\.ipynb(?P<suffix>[\"')>#?])",
+        r"\g<prefix>\g<target>.html\g<suffix>",
+        text,
+    )
+    return re.sub(
+        r"(?P<prefix>[\(/\"'=])(?P<target>[^\"')>]+?)\.md(?P<suffix>[\"')>#?])",
+        r"\g<prefix>\g<target>.html\g<suffix>",
+        updated,
+    )
 
 
 def rewrite_html_links(html_path: Path) -> None:
     content = html_path.read_text(encoding="utf-8")
-    updated = rewrite_notebook_links(content)
+    updated = rewrite_note_links(content)
     if NOTEBOOK_THEME_OVERRIDES not in updated and "</head>" in updated:
         updated = updated.replace("</head>", f"{NOTEBOOK_THEME_OVERRIDES}\n</head>", 1)
     if updated != content:
@@ -378,18 +390,45 @@ def render_markdown(markdown_text: str) -> str:
     )
 
 
-def build_homepage() -> None:
-    readme_path = ROOT / "README.md"
-    readme_text = readme_path.read_text(encoding="utf-8")
-    readme_text = rewrite_notebook_links(readme_text)
-    body = render_markdown(readme_text)
+def parse_front_matter(markdown_text: str) -> tuple[dict[str, str], str]:
+    if not markdown_text.startswith("---\n"):
+        return {}, markdown_text
 
-    page = f"""<!DOCTYPE html>
+    end_marker = markdown_text.find("\n---\n", 4)
+    if end_marker == -1:
+        return {}, markdown_text
+
+    front_matter_text = markdown_text[4:end_marker]
+    metadata: dict[str, str] = {}
+    for line in front_matter_text.splitlines():
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        metadata[key.strip()] = value.strip().strip('"')
+
+    body = markdown_text[end_marker + len("\n---\n") :]
+    return metadata, body.lstrip()
+
+
+def page_title(markdown_path: Path, metadata: dict[str, str], markdown_text: str) -> str:
+    if metadata.get("title"):
+        return metadata["title"]
+
+    for line in markdown_text.splitlines():
+        match = re.match(r"^\s*#\s+(.+?)\s*$", line)
+        if match:
+            return match.group(1).strip()
+
+    return markdown_path.stem.replace("-", " ").replace("_", " ").title()
+
+
+def html_page(title: str, body: str, note: str) -> str:
+    return f"""<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MathLearningNotes</title>
+    <title>{html.escape(title)}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown.min.css">
     <style>
       body {{
@@ -464,7 +503,7 @@ def build_homepage() -> None:
   <body>
     <main class="page">
       <div class="site-note">
-        Notebook links on this site open rendered HTML pages generated from the repository's <code>.ipynb</code> files.
+        {note}
       </div>
       <article class="markdown-body">
         {body}
@@ -473,6 +512,38 @@ def build_homepage() -> None:
   </body>
 </html>
 """
+
+
+def render_markdown_file(markdown_path: Path) -> Path:
+    relative_path = markdown_path.relative_to(ROOT)
+    destination = OUTPUT_DIR / relative_path.with_suffix(".html")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
+    raw_text = markdown_path.read_text(encoding="utf-8")
+    metadata, body_text = parse_front_matter(raw_text)
+    title = page_title(markdown_path, metadata, body_text)
+    body_text = preprocess_markdown_text(body_text)
+    body_text = rewrite_note_links(body_text)
+    body = render_markdown(body_text)
+    page = html_page(
+        title,
+        body,
+        "Markdown notes are the canonical source. Archived notebooks are kept for provenance.",
+    )
+    destination.write_text(page, encoding="utf-8")
+    return destination
+
+
+def build_homepage() -> None:
+    readme_path = ROOT / "README.md"
+    readme_text = readme_path.read_text(encoding="utf-8")
+    readme_text = rewrite_note_links(readme_text)
+    body = render_markdown(readme_text)
+    page = html_page(
+        "MathLearningNotes",
+        body,
+        "Markdown notes are the canonical source. Archived notebooks are kept for provenance.",
+    )
     (OUTPUT_DIR / "index.html").write_text(page, encoding="utf-8")
 
 
@@ -483,21 +554,23 @@ def create_nojekyll_file() -> None:
 def main() -> None:
     clear_output_dir()
 
-    notebooks = sorted(
-        path for path in ROOT.rglob("*.ipynb") if not should_skip(path)
+    markdown_files = sorted(
+        path
+        for path in ROOT.rglob("*.md")
+        if not should_skip(path) and path != ROOT / "README.md"
     )
-    if not notebooks:
-        raise RuntimeError("No notebooks were found to convert.")
+    if not markdown_files:
+        raise RuntimeError("No Markdown notes were found to render.")
 
-    for notebook in notebooks:
-        print(f"Converting {notebook.relative_to(ROOT)}")
-        run_nbconvert(notebook)
+    for markdown_file in markdown_files:
+        print(f"Rendering {markdown_file.relative_to(ROOT)}")
+        render_markdown_file(markdown_file)
 
     copy_static_files()
     build_homepage()
     create_nojekyll_file()
 
-    print(f"Built {len(notebooks)} notebooks into {OUTPUT_DIR}")
+    print(f"Built {len(markdown_files)} Markdown notes into {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

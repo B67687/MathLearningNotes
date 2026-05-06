@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "**/*.ipynb"
+      - "!archive/**"
       - "translate_notebooks.py"
       - ".github/workflows/translate-notebooks.yml"
   pull_request:
@@ -13,6 +14,7 @@ on:
       - main
     paths:
       - "**/*.ipynb"
+      - "!archive/**"
       - "translate_notebooks.py"
       - ".github/workflows/translate-notebooks.yml"
   workflow_dispatch:
@@ -53,13 +55,13 @@ jobs:
           : > "$NOTEBOOK_LIST"
 
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            find . -type f -name '*.ipynb' -not -path './translated-notebooks/*' | sed 's|^\./||' | sort > "$NOTEBOOK_LIST"
+            find . -type f -name '*.ipynb' -not -path './translated-notebooks/*' -not -path './archive/*' | sed 's|^\./||' | sort > "$NOTEBOOK_LIST"
           elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- '*.ipynb' ':(exclude)translated-notebooks/**' | sort > "$NOTEBOOK_LIST"
+            git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- '*.ipynb' ':(exclude)translated-notebooks/**' ':(exclude)archive/**' | sort > "$NOTEBOOK_LIST"
           elif [[ "${{ github.event.before }}" == "0000000000000000000000000000000000000000" ]]; then
-            find . -type f -name '*.ipynb' -not -path './translated-notebooks/*' | sed 's|^\./||' | sort > "$NOTEBOOK_LIST"
+            find . -type f -name '*.ipynb' -not -path './translated-notebooks/*' -not -path './archive/*' | sed 's|^\./||' | sort > "$NOTEBOOK_LIST"
           else
-            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- '*.ipynb' ':(exclude)translated-notebooks/**' | sort > "$NOTEBOOK_LIST"
+            git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- '*.ipynb' ':(exclude)translated-notebooks/**' ':(exclude)archive/**' | sort > "$NOTEBOOK_LIST"
           fi
 
           NOTEBOOK_COUNT="$(grep -c . "$NOTEBOOK_LIST" || true)"

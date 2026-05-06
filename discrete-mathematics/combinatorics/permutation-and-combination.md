@@ -1,6 +1,7 @@
 ---
 title: "Permutation And Combination"
 source_notebook: "discrete-mathematics/combinatorics/permutation-and-combination.ipynb"
+archived_notebook: "archive/notebooks/discrete-mathematics/combinatorics/permutation-and-combination.ipynb"
 original_human_author: B67687
 polished_by: GPT-5
 review_status: needs-human-review
