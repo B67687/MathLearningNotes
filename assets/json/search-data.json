@@ -1,0 +1,59 @@
+{{/* FlexSearch Index Data — overridden to safely handle pages where
+  .Summary / .Content / .Plain trigger a Hugo bounds panic (index out of
+  range). The original template crashes when any page in the collection
+  has such content. Here we iterate manually and wrap in try/catch.
+*/}}
+{{- $indexType := site.Params.search.flexsearch.index | default "content" -}}
+
+{{- if not (in (slice "content" "summary" "heading" "title") $indexType) -}}
+  {{- errorf "unknown flexsearch index type: %s" $indexType -}}
+{{- end -}}
+
+{{- $output := dict -}}
+
+{{- $allPages := .Site.Pages -}}
+{{- range $page := $allPages -}}
+  {{- $kind := $page.Kind -}}
+  {{- if not (in (slice "page" "section") $kind) -}}
+    {{- continue -}}
+  {{- end -}}
+
+  {{- /* Skip if excluded */ -}}
+  {{- with $page.Params.excludeSearch -}}
+    {{- if . }}{{ continue }}{{ end -}}
+  {{- end -}}
+
+  {{- /* Safely extract page content */ -}}
+  {{- $rawContent := "" -}}
+  {{- with try ($page.Plain | htmlUnescape | strings.TrimSpace) -}}
+    {{- with .Err -}}
+      {{- continue -}}
+    {{- else -}}
+      {{- $rawContent = .Value -}}
+    {{- end -}}
+  {{- else -}}
+    {{- continue -}}
+  {{- end -}}
+
+  {{- if lt (len $rawContent) 3 -}}
+    {{- continue -}}
+  {{- end -}}
+
+  {{- $pageTitle := $page.LinkTitle | default $page.File.BaseFileName -}}
+  {{- $pageLink := $page.RelPermalink -}}
+
+  {{- $data := dict -}}
+  {{- with try (partial "utils/fragments" (dict "context" $page "type" $indexType)) -}}
+    {{- with .Err -}}
+      {{- $data = $data | merge (dict "" $rawContent) -}}
+    {{- else -}}
+      {{- $data = .Value -}}
+    {{- end -}}
+  {{- else -}}
+    {{- $data = $data | merge (dict "" $rawContent) -}}
+  {{- end -}}
+
+  {{- $output = $output | merge (dict $pageLink (dict "title" $pageTitle "data" $data)) -}}
+{{- end -}}
+
+{{- $output | jsonify -}}

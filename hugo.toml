@@ -1,0 +1,86 @@
+baseURL = "https://b67687.github.io/MathLearningNotes/"
+title = "Math Learning Notes"
+theme = "hextra"
+defaultContentLanguage = "en"
+
+# Use uglyURLs (.html extension) to keep compatibility with the repo's
+# relative .md links — they get rewritten to .html by the render-link hook.
+uglyURLs = true
+relativeURLs = false
+canonifyURLs = false
+
+# Content lives in a prepared subdirectory (populated by scripts/prepare-content.sh)
+contentDir = "content"
+
+[params]
+  description = "Mathematics learning notes — discrete math, calculus, trigonometry, and more"
+  displayUpdatedDate = true
+  dateFormat = "2006-01-02"
+  navbar.display = true
+  navbar.title = "Math Learning Notes"
+
+  # Hextra built-in search (flexsearch)
+  [params.search]
+    enable = true
+    type = "flexsearch"
+
+  # KaTeX for math rendering (client-side, handles $$ inline and display)
+  [params.math]
+    engine = "katex"
+    [params.math.katex]
+      assets = ["katex/katex.min.js", "katex/auto-render.min.js"]
+
+  # Edit URL (GitHub)
+  editURL.base = "https://github.com/B67687/MathLearningNotes/edit/main"
+
+  # Footer
+  footer.display = true
+
+  # Dark/light/system toggle
+  [params.theme]
+    default = "system"
+    displayToggle = true
+
+[markup]
+  defaultMarkdownHandler = "goldmark"
+  [markup.goldmark]
+    [markup.goldmark.extensions]
+      definitionList = true
+      footnote = true
+      linkify = true
+      strikethrough = true
+      table = true
+      taskList = true
+      typographer = true
+    [markup.goldmark.parser]
+      autoHeadingID = true
+      wrapStandAloneImageWithinParagraph = false
+    [markup.goldmark.renderer]
+      unsafe = true  # Allow raw HTML in markdown
+
+    # Passthrough LaTeX delimiters so Goldmark doesn't escape $$…$$
+    [markup.goldmark.extensions.passthrough]
+      enable = true
+      [markup.goldmark.extensions.passthrough.delimiters]
+        block = [['$$', '$$']]
+        inline = [['$', '$']]
+
+  [markup.highlight]
+    codeFences = true
+    copyable = true
+    guessSyntax = false
+    lineNumbers = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = "github"
+    tabWidth = 4
+
+[outputs]
+  home = ["HTML", "RSS"]
+  page = ["HTML"]
+  section = ["HTML"]
+
+# Disable unwanted page kinds (tags, categories — not used here)
+[taxonomies]
+  tag = "tags"
+  category = "categories"

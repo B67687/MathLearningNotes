@@ -1,0 +1,31 @@
+{{- /* render-link.html Hugo render hook for markdown links. Rewrites relative
+.md / .ipynb destinations to .html so that links like [foo](bar.md) resolve in
+the built site (uglyURLs=true). */ -}} {{- $dest := .Destination -}} {{-
+$isExternal := or (strings.HasPrefix $dest "http") (strings.HasPrefix $dest
+"https") -}} {{- $isAnchor := strings.HasPrefix $dest "#" -}} {{- $isMd := or
+(strings.HasSuffix $dest ".md") (strings.HasSuffix $dest ".ipynb") -}} {{- if
+and $isMd (not $isExternal) (not $isAnchor) -}} {{- $dest = strings.TrimSuffix
+".md" $dest -}} {{- $dest = strings.TrimSuffix ".ipynb" $dest -}} {{- $dest =
+printf "%s.html" $dest -}} {{- end -}}
+<a
+  href="{{ $dest | safeURL }}"
+  {{-
+  with
+  .Title
+  }}
+  title="{{ . }}"
+  {{
+  end
+  }}
+  {{-
+  if
+  $isExternal
+  }}
+  target="_blank"
+  rel="noopener"
+  {{
+  end
+  -}}
+>
+  {{- .Text | safeHTML -}}
+</a>

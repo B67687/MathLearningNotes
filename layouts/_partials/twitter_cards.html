@@ -1,0 +1,25 @@
+{{- /* twitter_cards.html — Override Hugo's internal template. The built-in
+template calls .Summary which triggers a bounds panic in Hugo < 0.148 on certain
+content. Use .Plain instead. */ -}}
+<meta
+  name="twitter:card"
+  content="{{- if .Params.images -}}summary_large_image{{- else -}}summary{{- end -}}"
+/>
+<meta name="twitter:title" content="{{ .Title }}" />
+<meta
+  name="twitter:description"
+  content="{{ with .Description }}{{ . }}{{ else }}{{ with .Params.description }}{{ . }}{{ else }}
+  {{- $plain := .Plain | htmlUnescape | strings.TrimSpace -}}
+  {{- if gt (len $plain) 5 -}}{{- $plain | safeHTML | truncate 200 -}}{{- else -}}{{- .Site.Params.description -}}{{- end -}}
+{{- end }}{{ end }}"
+/>
+
+{{- with .Site.Params.social.twitter -}}
+<meta name="twitter:site" content="@{{ . }}" />
+{{- end -}} {{- with .Site.Params.social.twitter_domain -}}
+<meta name="twitter:domain" content="{{ . }}" />
+{{- end -}} {{- with .Params.images -}} {{- $image := index . 0 -}}
+<meta name="twitter:image" content="{{ $image | absURL }}" />
+{{- else -}} {{- with .Site.Params.images -}}
+<meta name="twitter:image" content="{{ index . 0 | absURL }}" />
+{{- end -}} {{- end -}}

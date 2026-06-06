@@ -1,0 +1,16 @@
+{{- /* schema.html — Override Hugo's internal schema template.
+  The built-in schema template calls .Summary which triggers a bounds
+  panic on certain content in Hugo < 0.148. Use .Plain instead.
+*/ -}}
+<meta itemprop="name" content="{{ .Title }}">
+<meta itemprop="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Params.description }}{{ . }}{{ else }}
+  {{- $plain := .Plain | htmlUnescape | strings.TrimSpace -}}
+  {{- if gt (len $plain) 5 -}}{{- $plain | safeHTML | truncate 300 -}}{{- else -}}{{- .Site.Params.description -}}{{- end -}}
+{{- end }}{{ end }}">
+
+{{- if .IsPage -}}
+  {{- $iso8601 := "2006-01-02T15:04:05-07:00" -}}
+  {{ with .PublishDate }}<meta itemprop="datePublished" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }}>{{ end }}
+  {{ with .Lastmod }}<meta itemprop="dateModified" {{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }}>{{ end }}
+  <meta itemprop="wordCount" content="{{ .WordCount }}">
+{{- end -}}

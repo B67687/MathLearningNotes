@@ -80,33 +80,6 @@ target/
 profile_default/
 ipython_config.py
 
-# pyenv
-# .python-version
-
-# pipenv
-#Pipfile.lock
-
-# UV
-#uv.lock
-
-# poetry
-#poetry.lock
-
-# pdm
-.pdm.toml
-.pdm-python
-.pdm-build/
-
-# PEP 582
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
 # Environments
 .env
 .venv
@@ -141,12 +114,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# PyCharm
-#.idea/
-
-# PyPI configuration file
-.pypirc
-
 # OS files
 *.tmp
 *.bak
@@ -161,3 +128,9 @@ math-learning-notes-content/
 .claude/
 .pi/
 meta/
+
+# Hugo build artifacts
+public/
+content/
+resources/
+.hugo_build.lock

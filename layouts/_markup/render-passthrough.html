@@ -1,0 +1,7 @@
+{{- /* render-passthrough.html Override Hextra's passthrough renderer to use
+client-side KaTeX only. Hextra's built-in version uses transform.ToMath
+(server-side), which requires Hugo built with --tags extended,math — not
+guaranteed in CI. Instead, we output raw LaTeX delimiters and let Hextra's
+client-side KaTeX (loaded in the head via params.math) handle rendering. */ -}}
+{{- $.Page.Store.Set "hasMath" true -}} {{- if eq .Type "block" -}} $${{- .Inner
+-}}$$ {{- else -}} ${{- .Inner -}}$ {{- end -}}

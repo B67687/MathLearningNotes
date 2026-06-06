@@ -1,0 +1,5 @@
+{{- /* page-description.html — Safe override that avoids .Summary panic. Uses
+.Plain which doesn't trigger the Hugo bounds bug. */ -}} {{- with .Description
+-}} {{- . -}} {{- else -}} {{- $plain := .Plain | htmlUnescape | chomp -}} {{-
+if gt (len $plain) 5 -}} {{- $plain | safeHTML -}} {{- else -}} {{-
+.Site.Params.description -}} {{- end -}} {{- end -}}
