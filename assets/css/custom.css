@@ -191,6 +191,20 @@ html.dark .hextra-footer {
   --hextra-max-content-width: 76rem;
 }
 
+/* Fix: callout divs inside <h2> (Hugo goldmark edge case) */
+h2:has(div.hx\\:overflow-x-auto) {
+  all: revert;
+  display: block;
+  font-size: inherit;
+  font-weight: inherit;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+h2:has(div.hx\\:overflow-x-auto) .subheading-anchor {
+  display: none;
+}
+
 /* =============================================
    OBSIDIAN-LIKE TABLES
    ============================================= */
