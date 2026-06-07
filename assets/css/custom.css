@@ -192,6 +192,44 @@ html.dark .hextra-footer {
 }
 
 /* =============================================
+   OBSIDIAN-LIKE TABLES
+   ============================================= */
+
+.content table,
+.markdown-body table {
+  display: table;
+  border-collapse: collapse;
+  width: auto;
+  margin: 0.8em 0;
+  font-size: 0.9em;
+}
+
+.content th,
+.markdown-body th {
+  background-color: #2e2e2e;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.4em 0.6em;
+  border: 1px solid #333;
+}
+
+.content td,
+.markdown-body td {
+  padding: 0.35em 0.6em;
+  border: 1px solid #333;
+}
+
+html.dark .content tr:nth-child(even) td,
+html.dark .markdown-body tr:nth-child(even) td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+html:not(.dark) .content tr:nth-child(even) td,
+html:not(.dark) .markdown-body tr:nth-child(even) td {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* =============================================
    OBSIDIAN-LIKE HEADINGS — subtle, not enlarged
    ============================================= */
 
