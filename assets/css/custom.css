@@ -295,9 +295,8 @@ article h4,
   margin: 0.8em 0 0.3em;
 }
 
-.content .subheading-anchor {
-  opacity: 0.3;
-}
+/* Subheading anchors (#) hidden by default, visible on hover.
+   Hextra defaults to opacity:0 → 1 on hover. Keep default. */
 
 /* Sidebar navigation items */
 .hextra-sidebar-container ul li a {
