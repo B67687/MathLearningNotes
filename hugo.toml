@@ -36,9 +36,9 @@ contentDir = "content"
   # Footer
   footer.display = true
 
-  # Dark/light/system toggle
+  # Dark/light/system toggle — Obsidian-inspired default is dark
   [params.theme]
-    default = "system"
+    default = "dark"
     displayToggle = true
 
 [markup]

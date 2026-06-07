@@ -1,0 +1,211 @@
+/* Custom CSS — Obsidian-inspired theme for Math Learning Notes.
+ *
+ * Overrides Hextra's default colors to match the look and feel of
+ * Obsidian's default dark theme (clean, minimal, blue accent).
+ */
+
+@layer theme {
+  :root {
+    /* Obsidian blue accent (~226deg hue) */
+    --primary-hue: 226deg;
+    --primary-saturation: 80%;
+    --primary-lightness: 65%;
+
+    /* Monospace font for code */
+    --hx-default-mono-font-family:
+      "JetBrains Mono", "Fira Code", "Cascadia Code", "Consolas",
+      "Liberation Mono", monospace;
+  }
+}
+
+/* =============================================
+   DARK MODE (default — matches Obsidian dark)
+   ============================================= */
+
+:is(html[class~="dark"] *) {
+  /* Obsidian backgrounds */
+  --hx-bg-dark: #1e1e1e;
+  --hx-bg-darker: #181818;
+  --hx-bg-card: #252525;
+  --hx-bg-hover: #2e2e2e;
+  --hx-bg-code: #2d2d2d;
+  --hx-border-color: #333333;
+
+  /* Obsidian text */
+  --hx-text-main: #d4d4d4;
+  --hx-text-dim: #9d9d9d;
+  --hx-text-heading: #e8e8e8;
+}
+
+/* Override Hextra dark backgrounds */
+html.dark body {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+}
+
+html.dark .hextra-nav-container-blur {
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333333;
+}
+
+/* Sidebar */
+html.dark .hextra-sidebar-container {
+  background-color: #181818;
+  border-right: 1px solid #333333;
+}
+
+html.dark .hextra-sidebar-active-item {
+  background-color: #2e2e2e;
+}
+
+html.dark .hextra-sidebar-container a:hover {
+  background-color: #2e2e2e;
+}
+
+/* Cards / content areas */
+html.dark .hextra-card {
+  background-color: #252525;
+  border-color: #333333;
+}
+
+html.dark .hextra-card:hover {
+  border-color: #4a4a4a;
+}
+
+/* Code blocks */
+html.dark pre,
+html.dark code:not(.code-block code) {
+  background-color: #2d2d2d;
+  color: #d4d4d4;
+}
+
+html.dark .code-block {
+  background-color: #2d2d2d;
+  border: 1px solid #333333;
+}
+
+/* Inline code */
+html.dark .content code:not(.code-block code) {
+  background-color: rgba(45, 45, 45, 0.8);
+  color: #d4d4d4;
+  border: 1px solid #3a3a3a;
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+
+/* Links */
+html.dark a {
+  color: #6c8cff;
+}
+
+html.dark a:hover {
+  color: #8aa8ff;
+}
+
+/* Headings */
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+  color: #e8e8e8;
+}
+
+/* Table styling */
+html.dark table {
+  border-color: #333333;
+}
+
+html.dark th,
+html.dark td {
+  border-color: #333333;
+}
+
+html.dark tr:nth-child(even) {
+  background-color: #252525;
+}
+
+/* Blockquotes */
+html.dark blockquote {
+  border-left-color: #6c8cff;
+  background-color: rgba(108, 140, 255, 0.05);
+  color: #b0b0b0;
+}
+
+/* Horizontal rules */
+html.dark hr {
+  border-color: #333333;
+}
+
+/* Table of Contents */
+html.dark .hextra-toc {
+  border-left-color: #333333;
+}
+
+/* Search */
+html.dark .hextra-search-dialog {
+  background-color: #252525;
+  border: 1px solid #444444;
+}
+
+html.dark .hextra-search-input {
+  background-color: #2d2d2d;
+  border-color: #444444;
+  color: #d4d4d4;
+}
+
+html.dark .hextra-search-excerpt {
+  color: #9d9d9d;
+}
+
+/* Footer */
+html.dark .hextra-footer {
+  border-top: 1px solid #333333;
+  color: #9d9d9d;
+}
+
+/* =============================================
+   LIGHT MODE — clean, minimal (light Obsidian)
+   ============================================= */
+
+:root {
+  --hx-text-main: #1f2328;
+  --hx-text-dim: #656d76;
+}
+
+/* =============================================
+   GENERAL (both modes)
+   ============================================= */
+
+/* Content area typography */
+.content {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji";
+  line-height: 1.7;
+}
+
+/* Slightly wider content for readability */
+:root {
+  --hextra-max-content-width: 76rem;
+}
+
+/* Sidebar navigation items */
+.hextra-sidebar-container ul li a {
+  font-size: 0.875rem;
+  padding: 0.3rem 0.75rem;
+}
+
+/* Remove default hover background in light mode for cleaner look */
+html:not(.dark) .hextra-sidebar-container a:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Smooth transitions */
+* {
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
