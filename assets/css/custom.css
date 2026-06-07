@@ -243,6 +243,16 @@ html:not(.dark) .markdown-body tr:nth-child(even) td {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
+/* Fix: blockquotes inside callouts show checklist items.
+   Remove italic style — they're not citations. */
+div.hx\\:overflow-x-auto blockquote {
+  font-style: normal;
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* =============================================
    OBSIDIAN-LIKE HEADINGS — subtle, not enlarged
    ============================================= */
